@@ -12,35 +12,51 @@ def normalize_str(s: str) -> str:
 
 def get_player_season_totals(player_name: str, year: int):
     """
-    Fetch a player's aggregated season totals for a given year.
-    The player_name is normalized to improve matching.
+    Fetch a player's aggregated season totals (per game stats) for the given season.
+    Returns the first matching record or None if not found.
     """
-    # Fetch all players' season totals for the given season.
     season_totals = client.players_season_totals(season_end_year=year)
-
-    # Normalize the player name from the query.
-    norm_query = normalize_str(player_name)
-    
-    # Filter using normalized names.
     player_data = [
-        p for p in season_totals 
-        if norm_query in normalize_str(p['name'])
+        p for p in season_totals if normalize_str(player_name) in normalize_str(p['name'])
     ]
-
-    print("All season totals:")
-    pprint.pprint(season_totals)
-
-    print(f"Filtered data for {player_name}:")
-    pprint.pprint(player_data)
-
     if not player_data:
         return None
-
-    # Return the first matching entry.
     return player_data[0]
 
+def get_league_leader(stat_key: str, year: int):
+    """
+    Fetch league totals for the given season and return the player with the highest
+    per game average for the given stat.
+    
+    For stat_key "points", "assists", "turnovers", "attempted_field_goals", or "attempted_free_throws",
+    per game average is computed as value / games_played.
+    
+    For "rebounds", we sum offensive and defensive rebounds.
+    
+    Returns a tuple (player, avg_value) or (None, None) if not found.
+    """
+    season_totals = client.players_season_totals(season_end_year=year)
+    valid_players = [p for p in season_totals if p['games_played'] > 0]
+    leader = None
+    leader_avg = -1
+    for p in valid_players:
+        games = p['games_played']
+        if stat_key == "rebounds":
+            avg = (p['offensive_rebounds'] + p['defensive_rebounds']) / games
+        else:
+            avg = p.get(stat_key, 0) / games
+        if avg > leader_avg:
+            leader_avg = avg
+            leader = p
+    return leader, leader_avg
+
 if __name__ == "__main__":
-    # Example usage for testing; try with "Luka Doncic" even if the data has "Luka Dončić".
-    example_stats = get_player_season_totals("Luka Doncic", 2023)
-    print("Example stats for Luka Doncic in 2022-23:")
-    pprint.pprint(example_stats)
+    # Test per game stats for LeBron James in 2023 season (2022-23)
+    stats = get_player_season_totals("LeBron James", 2023)
+    print("Per Game Stats:")
+    pprint.pprint(stats)
+    
+    # Test league leader in scoring (points) in 2023 season
+    leader, avg = get_league_leader("points", 2023)
+    print("\nLeague Leader in Scoring (PPG):")
+    print(leader['name'] if leader else "None", avg)

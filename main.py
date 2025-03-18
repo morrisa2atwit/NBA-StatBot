@@ -4,8 +4,20 @@ from chat import generate_response
 app = Flask(__name__)
 
 @app.route("/")
-def index():
+def home():
     return render_template("index.html")
+
+@app.route("/per_game")
+def per_game():
+    return render_template("per_game.html")
+
+@app.route("/general")
+def general():
+    return render_template("general.html")
+
+@app.route("/comparison")
+def comparison():
+    return render_template("comparison.html")
 
 @app.route("/chat", methods=["POST"])
 def chat_endpoint():

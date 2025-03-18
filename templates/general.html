@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>General Queries - NBA StatBot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #response { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>General Queries</h1>
+  <form id="generalForm">
+    <input type="text" id="generalInput" placeholder="e.g. 'Who led the NBA in scoring in 2023?'" size="70" required>
+    <button type="submit">Submit</button>
+  </form>
+  <div id="response"></div>
+  <p><a href="/">Return Home</a></p>
+
+  <script>
+    document.getElementById('generalForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const query = document.getElementById('generalInput').value;
+      fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('response').innerText = data.answer;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('response').innerText = 'An error occurred.';
+      });
+    });
+  </script>
+</body>
+</html>

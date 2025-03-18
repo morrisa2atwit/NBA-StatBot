@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Player Stat Comparison - NBA StatBot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #response { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Player Stat Comparison</h1>
+  <form id="comparisonForm">
+    <input type="text" id="comparisonInput" placeholder="e.g. 'compare LeBron 2022-23 vs Stephen Curry 2021-22'" size="70" required>
+    <button type="submit">Submit</button>
+  </form>
+  <div id="response"></div>
+  <p><a href="/">Return Home</a></p>
+
+  <script>
+    document.getElementById('comparisonForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const query = document.getElementById('comparisonInput').value;
+      fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('response').innerText = data.answer;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('response').innerText = 'An error occurred.';
+      });
+    });
+  </script>
+</body>
+</html>

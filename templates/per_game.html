@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Per Game Stats - NBA StatBot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #response { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Per Game Stats</h1>
+  <form id="perGameForm">
+    <input type="text" id="perGameInput" placeholder="e.g. 'LeBron 2022-23 per game stats'" size="60" required>
+    <button type="submit">Submit</button>
+  </form>
+  <div id="response"></div>
+  <p><a href="/">Return Home</a></p>
+
+  <script>
+    document.getElementById('perGameForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const query = document.getElementById('perGameInput').value;
+      fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('response').innerText = data.answer;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('response').innerText = 'An error occurred.';
+      });
+    });
+  </script>
+</body>
+</html>
